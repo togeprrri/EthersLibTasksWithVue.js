@@ -1,0 +1,131 @@
+<script>
+    import { ethers } from "./ethers-5.2.umd.min.js";
+
+    export default{
+        data() {
+            return {
+                network: '',
+                tokenAddress: '',
+                tokenInfo: {
+                    name: '',
+                    symbol: '',
+                    balance: ''
+                },
+                transactions: [],
+                tempAddress: '',
+                tempAmount: null,
+                tokenContract: null
+            }
+        },
+        methods: {
+            async connectToNetwork() {
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
+
+                await provider.send("eth_requestAccounts", []);
+
+                this.network = (await provider.getNetwork()).name;
+            },
+            async tokenAddressConnect() {
+                if((this.tokenAddress).length != 42 || this.tokenAddress.slice(0,2)!='0x'){
+                    return;
+                }
+
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
+
+                await provider.send("eth_requestAccounts", []);
+
+                const signer = provider.getSigner();
+
+
+                const tokenAbi = [
+                    "function name() view returns (string)",
+                    "function symbol() view returns (string)",
+
+                    "function balanceOf(address) view returns (uint)",
+
+                    "function transfer(address to, uint amount)",
+                ]
+
+                tokenContract = new ethers.Contract(this.tokenAddress, tokenAbi, signer);
+
+                this.tokenInfo.name = await tokenContract.name();
+                this.tokenInfo.symbol = await tokenContract.symbol();
+                this.tokenInfo.balance = ethers.utils.formatEther(await tokenContract.balanceOf(signer.getAddress()));
+            },
+            addTransaction() {
+                this.transactions.push({address: this.tempAddress, amount: this.tempAmount});
+            },
+            removeTransaction(tx) {
+                this.transactions = this.transactions.filter((t) => t!==tx);
+            },
+            async transferTokensToAccounts() {
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
+
+                await provider.send("eth_requestAccounts", []);
+
+                const signer = provider.getSigner();
+
+                this.transactions.forEach(element => {
+                    this.tokenContract.transfer(element.address, ethers.utils.parseEther((element.amount).toString()));
+                });
+            }
+        },
+        mounted() {
+            this.connectToNetwork();
+            ethereum.on('accountsChanged', this.connectToNetwork);
+            ethereum.on('chainChanged', this.connectToNetwork);
+        }
+    }
+</script>
+
+<template>
+    <div class = "body">
+        <div class = "block">
+            <h2>Network: {{network}}</h2>
+            <h2>Input token address:</h2>
+            <input id="address" type="text" v-model="tokenAddress" @input="tokenAddressConnect" placeholder="Token address">
+            <br><br>
+            <h2>Connected token:</h2>
+            <h4>Name: {{tokenInfo.name}}</h4>
+            <h4>Symbol: {{tokenInfo.symbol}}</h4>
+            <h4>Your balance: {{tokenInfo.balance}}</h4>
+        </div>
+        <div class = "block">
+            <h2>Input transaction properties:</h2>
+            <input id="address" type="text" v-model="tempAddress" placeholder="Address"><br>
+            <input type="number" v-model="tempAmount" placeholder="Amount">
+            <button @click="addTransaction">Add</button>
+            <br><br>
+            <button @click="transferTokensToAccounts">Confirm transactions</button>
+        </div>
+        <div class = "block" id = "transactionList">
+            <h2 v-if="transactions.length">Transactions:</h2>
+            <ul>
+                <li v-for="tx in transactions">
+                    <u>Address:</u> {{tx.address}}<br>
+                    <u>Amount:</u> {{tx.amount}} {{tokenInfo.symbol}}<br>
+                    <button @click="removeTransaction(tx)">Remove</button>
+                </li>
+            </ul>
+        </div>
+    </div>
+    
+</template>
+
+<style>
+.body {
+    display: flex;
+}
+.block {
+    margin: 0 100px 0 0;
+    width: 300px;
+}
+
+#address {
+    width: 320px;
+}
+
+#transactionList {
+    width: 450px;
+}
+</style>

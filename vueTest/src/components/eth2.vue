@@ -1,6 +1,6 @@
 <script setup>
     import { ethers } from "./ethers-5.2.umd.min.js";
-    import { ref, onMounted, computed } from 'vue'
+    import { ref, onMounted } from 'vue'
 
     const signerBalance = ref('');
 
@@ -45,6 +45,10 @@
 
         console.log(transactionHash.value);
     };
+
+    ethereum.on('message', getBalance);
+    ethereum.on('accountsChanged', getBalance);
+    ethereum.on('chainChanged', getBalance);
 
     onMounted(() => {
         getBalance();

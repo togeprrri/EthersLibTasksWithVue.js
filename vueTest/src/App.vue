@@ -4,8 +4,14 @@
   import eth2 from './components/eth2.vue'
   import eth4 from './components/eth4.vue'
   import eth5 from './components/eth5.vue'
+  import eth1_o from './components/eth1_o.vue'
+  import eth2_o from './components/eth2_o.vue'
 
 const taskId = ref(1);
+
+const tasks = [
+  0, eth1_o, eth2_o, eth4, eth5
+]
 
 function prev() {
   if(taskId.value != 1){
@@ -22,21 +28,9 @@ function next() {
 
 <template>
   <main>
-    <div v-if="taskId === 1">
-      <h1>Task 1</h1>
-      <eth1 />
-    </div>
-    <div v-else-if="taskId === 2">
-      <h1>Task 2</h1>
-      <eth2 />
-    </div>
-    <div v-else-if="taskId === 3">
-      <h1>Task 4</h1>
-      <eth4 />
-    </div>
-    <div v-else-if="taskId === 4">
-      <h1>Task 5</h1>
-      <eth5 />
+    <div>
+      <h1>Task {{taskId}}</h1>
+      <component :is="tasks[taskId]"></component>
     </div>
     <br><br>
     <button @click="prev">Prev</button>
