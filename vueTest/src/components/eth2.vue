@@ -1,8 +1,9 @@
 <script setup>
     import { ethers } from "./ethers-5.2.umd.min.js";
-    import { ref, onMounted } from 'vue'
+    import { ref, onMounted, computed } from 'vue'
 
     const signerBalance = ref('');
+
     const network = ref('');
 
     const addressTo = ref('');
@@ -10,7 +11,6 @@
     const transactionHash = ref(0);
 
     async function getBalance() {
-        //await window.ethereum.enable();
         const provider = new ethers.providers.Web3Provider(window.ethereum);
 
         await provider.send("eth_requestAccounts", []);
@@ -30,14 +30,8 @@
 
         const signer = provider.getSigner();
 
-        /*const tx = {
-            from: DefaultAccount,
-            to: addressTo.
-        }*/
-
         console.log(await signer.getAddress());
         console.log(addressTo.value);
-        //console.log((ethers.utils.parseEther((amountTo.value))).toHexString());
         const _amount = (ethers.utils.parseEther((amountTo.value).toString())).toHexString();
         console.log(_amount);
 

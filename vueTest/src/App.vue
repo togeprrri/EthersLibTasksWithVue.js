@@ -2,6 +2,8 @@
   import { ref } from 'vue'
   import eth1 from './components/eth1.vue'
   import eth2 from './components/eth2.vue'
+  import eth4 from './components/eth4.vue'
+  import eth5 from './components/eth5.vue'
 
 const taskId = ref(1);
 
@@ -12,7 +14,9 @@ function prev() {
 }
 
 function next() {
-  taskId.value++;
+  if(taskId.value != 4){
+    taskId.value++;
+  }
 }
 </script>
 
@@ -25,6 +29,14 @@ function next() {
     <div v-else-if="taskId === 2">
       <h1>Task 2</h1>
       <eth2 />
+    </div>
+    <div v-else-if="taskId === 3">
+      <h1>Task 4</h1>
+      <eth4 />
+    </div>
+    <div v-else-if="taskId === 4">
+      <h1>Task 5</h1>
+      <eth5 />
     </div>
     <br><br>
     <button @click="prev">Prev</button>
